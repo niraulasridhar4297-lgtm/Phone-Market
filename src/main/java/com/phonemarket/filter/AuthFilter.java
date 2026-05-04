@@ -2,7 +2,9 @@ package com.phonemarket.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = {"/user/*", "/admin/*"})
@@ -12,7 +14,7 @@ public class AuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest  req  = (HttpServletRequest)  request;
+        HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
 
@@ -26,13 +28,11 @@ public class AuthFilter implements Filter {
 
         String role = (String) session.getAttribute("userRole");
 
-        // Prevent regular users from accessing admin URLs
         if (path.startsWith("/admin") && !"admin".equals(role)) {
             resp.sendRedirect(req.getContextPath() + "/user/home");
             return;
         }
 
-        // Prevent admins from accessing user URLs (optional: redirect to admin home)
         if (path.startsWith("/user") && "admin".equals(role)) {
             resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
             return;
